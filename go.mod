@@ -11,6 +11,8 @@ require (
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.9 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/stretchr/testify v1.10.0 // indirect
 )
 
 require (
