@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/AshishBodhankar/clothing-store/backend/internal/user"
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(r *gin.Engine, db *sql.DB) {
+func RegisterRoutes(r *gin.Engine, db *sql.DB, secretKey string) {
+	// Public routes: accessible without authentication
 	r.GET("/products", func(c *gin.Context) {
 		products, err := ListProducts(c.Request.Context(), db)
 		if err != nil {
@@ -32,4 +34,22 @@ func RegisterRoutes(r *gin.Engine, db *sql.DB) {
 		}
 		c.JSON(http.StatusOK, product)
 	})
+
+	// Protected routes: require JWT authentication and admin role
+	protected := r.Group("/products")
+	protected.Use(user.JWTMiddleware(secretKey))
+	protected.Use(user.RoleMiddleware(user.RoleAdmin))
+	{
+		protected.POST("/", func(c *gin.Context) {
+			// Handler logic for creating a product
+		})
+
+		protected.PUT("/:id", func(c *gin.Context) {
+			// Handler logic for updating a product
+		})
+
+		protected.DELETE("/:id", func(c *gin.Context) {
+			// Handler logic for deleting a product
+		})
+	}
 }
