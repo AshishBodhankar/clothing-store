@@ -1,4 +1,4 @@
-module clothing-store
+module github.com/AshishBodhankar/clothing-store
 
 go 1.24.3
 

@@ -10,7 +10,7 @@ import (
 )
 
 func RegisterRoutes(r *gin.Engine, db *sql.DB, secretKey string) {
-	// Public routes: accessible without authentication
+	// Public routes
 	r.GET("/products", func(c *gin.Context) {
 		products, err := ListProducts(c.Request.Context(), db)
 		if err != nil {
@@ -35,7 +35,7 @@ func RegisterRoutes(r *gin.Engine, db *sql.DB, secretKey string) {
 		c.JSON(http.StatusOK, product)
 	})
 
-	// Protected routes: require JWT authentication and admin role
+	// Protected routes
 	protected := r.Group("/products")
 	protected.Use(user.JWTMiddleware(secretKey))
 	protected.Use(user.RoleMiddleware(user.RoleAdmin))

@@ -1,29 +1,44 @@
-// Root: clothing-store/backend/cmd/api/main.go
 package main
 
 import (
-	"clothing-store/backend/internal/common"
-	"clothing-store/backend/internal/product"
+	"database/sql"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
+
+	"github.com/AshishBodhankar/clothing-store/backend/internal/middleware"
+	"github.com/AshishBodhankar/clothing-store/backend/internal/product"
+	"github.com/AshishBodhankar/clothing-store/backend/internal/user"
 )
 
 func main() {
-	db, err := common.ConnectDB()
-	if err != nil {
-		log.Fatal("Failed to connect to DB:", err)
+	// Load environment variables or configuration
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey == "" {
+		log.Fatal("JWT_SECRET environment variable not set")
 	}
 
+	// Initialize database connection
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	// Initialize Gin router
 	r := gin.Default()
 
-	// Serve static files
-	r.Static("/assets", "./frontend/assets")
+	// Apply global middleware
+	r.Use(middleware.ErrorHandler())
 
-	product.RegisterRoutes(r, db)
+	// Register routes
+	user.RegisterRoutes(r, db, secretKey)
+	product.RegisterRoutes(r, db, secretKey)
 
-	// Future: user.RegisterRoutes(r, db)
-	// Future: order.RegisterRoutes(r, db)
-
-	r.Run(":8080")
+	// Start the server
+	if err := r.Run(); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
+	}
 }

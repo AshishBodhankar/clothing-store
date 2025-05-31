@@ -27,26 +27,24 @@ func JWTMiddleware(secretKey string) gin.HandlerFunc {
 			return
 		}
 
-		c.Set("user", token.Claims)
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			return
+		}
+
+		c.Set("userRole", claims["role"])
 		c.Next()
 	}
 }
 
 func RoleMiddleware(requiredRole string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		claims, exists := c.Get("user")
-		if !exists {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "User not found in context"})
+		role, exists := c.Get("userRole")
+		if !exists || role != requiredRole {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
 			return
 		}
-
-		userClaims := claims.(jwt.MapClaims)
-		role, ok := userClaims["role"].(string)
-		if !ok || role != requiredRole {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
-			return
-		}
-
 		c.Next()
 	}
 }
