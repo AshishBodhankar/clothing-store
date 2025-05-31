@@ -33,8 +33,12 @@ func main() {
 	// Apply global middleware
 	r.Use(middleware.ErrorHandler())
 
-	// Register routes
-	user.RegisterRoutes(r, db, secretKey)
+	// Initialize user service and handler
+	userService := user.NewService(db, secretKey)
+	userHandler := user.NewHandler(userService)
+	userHandler.RegisterRoutes(r)
+
+	// Register product routes
 	product.RegisterRoutes(r, db, secretKey)
 
 	// Start the server
