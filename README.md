@@ -1,19 +1,15 @@
 # eComm
-Vaishish's E-Commerce website
 
-Website Stucture is as follows:
 
-clothing-store/
-├── backend/
-│   ├── main.go
-│   ├── handlers/
-│   ├── models/
-│   ├── routes/
-│   └── utils/
-├── frontend/
-│   ├── index.html
-│   ├── js/
-│   ├── css/
-│   └── assets/
-├── go.mod
-└── README.md
+**Summary of Bugs Fixed:**
+
+JWT_SECRET Not Loading: Resolved by ensuring the application runs from the project root so godotenv finds backend/.env, and by adding detailed logging to confirm loading.
+Incorrect user.NewService Call: Corrected by creating user.Repository first and passing it to NewService.
+Incorrect product.RegisterRoutes Call: Corrected by passing the jwtSecret as required by its signature.
+Incorrect userHandler.RegisterRoutes Call: Corrected by passing the jwtSecret after its signature was updated.
+API Call Hang/No Response (Port Conflict): Resolved by changing the Gin web server port from 8080 to 8081, as 8080 was likely conflicting with the expected PostgreSQL port or another service.
+Database Connection Refused (Incorrect Port): Resolved by changing DATABASE_URL to use the correct PostgreSQL port 5432 instead of 8080.
+Database SSL Error: Resolved by adding ?sslmode=disable to the DATABASE_URL.
+Database Sequence Permission Error: Resolved by granting USAGE, SELECT permissions on users_id_seq to the ashishb database user.
+"User ID not found in context" Error: Resolved by ensuring JWTMiddleware sets the "userID" claim into the context.
+"Role not found in context" Error: Resolved by correcting the context key in the Profile handler from "role" to "userRole" to match what JWTMiddleware sets.
