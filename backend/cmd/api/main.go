@@ -59,6 +59,7 @@ func main() {
 
 	// Initialize Gin router
 	r := gin.Default()
+	r.RedirectTrailingSlash = false // Disable automatic redirect for trailing slashes
 
 	// Apply global middleware
 	r.Use(middleware.ErrorHandler())
