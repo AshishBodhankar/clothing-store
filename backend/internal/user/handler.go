@@ -15,12 +15,12 @@ func NewHandler(service Service) *Handler {
 	return &Handler{Service: service}
 }
 
-func (h *Handler) RegisterRoutes(r *gin.Engine) {
+func (h *Handler) RegisterRoutes(r *gin.Engine, jwtSecret string) {
 	r.POST("/api/register", h.Register)
 	r.POST("/api/login", h.Login)
 	// Protected routes
 	authorized := r.Group("/api")
-	authorized.Use(JWTMiddleware())
+	authorized.Use(JWTMiddleware(jwtSecret)) // Pass the secret here
 	{
 		authorized.GET("/profile", h.Profile)
 	}
@@ -74,7 +74,7 @@ func (h *Handler) Profile(c *gin.Context) {
 		return
 	}
 
-	role, exists := c.Get("role")
+	role, exists := c.Get("userRole") // Changed "role" to "userRole"
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Role not found in context"})
 		return
@@ -82,6 +82,6 @@ func (h *Handler) Profile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"user_id": userID,
-		"role":    role,
+		"role":    role, // This can stay as "role" in the JSON response if you like
 	})
 }
